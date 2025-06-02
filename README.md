@@ -1,1 +1,1 @@
-# myblog
+# приложение-блог с использованием Spring Framework
