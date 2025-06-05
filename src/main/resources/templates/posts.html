@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Блог</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .post-preview { border: 1px solid #ccc; margin: 10px; padding: 10px; }
+        .tag { background: #eee; padding: 2px 5px; margin-right: 5px; }
+        #postForm {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<h1 style="text-align: center;">Лента постов</h1>
+    <button style="float:right;" onclick="toggleForm()">ДОБАВИТЬ ПОСТ</button>
+
+<div class="form-container" style="display: none;" id="postForm">
+    <form method="POST" th:action="@{/posts}">
+        <table style="width:50%;margin-left:auto;margin-right:auto;">
+            <tr>
+                <td>
+                    <h3>Название</h3>
+                    <textarea rows="2" style="width: 100%;" name="title"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h3>Изображение</h3>
+                    <input type="file" name="image">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h3>Теги</h3>
+                    <textarea rows="2" style="width: 100%;" name="tags"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h3>Текст</h3>
+                    <textarea rows="30" style="width: 100%;" name="text"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button type="submit" style="float:right;">Сохранить</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<table style="width:50%;margin-left:auto;margin-right:auto;">
+    <tr>
+        <td>
+            <form>
+                <p>
+                    <label for="search">Найти по тегу: </label>
+                    <input id="search" style="width:300px;" name="search" th:value="${search}">
+                    <button name="action">&#128269;</button>
+                </p>
+                <p>
+                     <label for="pageSize">Число постов: </label>
+                     <select id="pageSize" name="pageSize" onchange="this.form.submit()">
+                         <option value="5" th:selected="${paging.pageSize==5}">5</option>
+                         <option value="10" th:selected="${paging.pageSize==10}">10</option>
+                         <option value="20" th:selected="${paging.pageSize==20}">20</option>
+                         <option value="50" th:selected="${paging.pageSize==50}">50</option>
+                         <option value="100" th:selected="${paging.pageSize==100}">100</option>
+                     </select>
+                 </p>
+                 <p>
+                     <button th:if="${paging.hasPrevious}" name="pageNumber" th:value="${paging.pageNumber - 1}">&lt;</button>
+                     <span th:text="${'Страница: '+paging.pageNumber}"></span>
+                     <button th:if="${paging.hasNext}" name="pageNumber" th:value="${paging.pageNumber + 1}">&gt;</button>
+                 </p>
+            </form>
+        </td>
+    </tr>
+
+    <tr th:each="post : ${posts}">
+        <td style="border-bottom:thin solid;">
+            <h2 th:text="${post.title}"></h2>
+            <p>
+                <a th:href="${'/myblog/posts/'+post.id}">
+                    <img height="300" th:src="${'http://localhost:8080/myblog/images/'+post.id+'.jpg'}">
+                </a>
+            </p>
+            <p th:text="${#strings.abbreviate(post.text, 150)}"></p>
+            <p>
+                <span th:text="${'&#x1F44D; '+post.likesCount}"></span>
+                    <span th:text="'✉ ' + ${#lists.size(post.comments)}"></span>
+            </p>
+            <p>
+                <span th:each="tag : ${post.tags}" th:text="${'#'+tag+' '}"></span>
+            </p>
+        </td>
+    </tr>
+</table>
+<script>
+    function toggleForm() {
+        const formContainer = document.getElementById('postForm');
+        const form = formContainer.querySelector('form');
+
+        if (formContainer.style.display === 'none' || formContainer.style.display === '') {
+            formContainer.style.display = 'block';
+            form.reset(); // ← Reset form fields
+        } else {
+            formContainer.style.display = 'none';
+        }
+    }
+</script>
+</body>
+</html>
